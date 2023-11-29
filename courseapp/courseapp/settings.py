@@ -40,10 +40,12 @@ INSTALLED_APPS = [
     'courses.apps.CoursesConfig',
     'ckeditor',
     'ckeditor_uploader',
-    'debug_toolbar'
+    'debug_toolbar',
+    'rest_framework',
+    'drf_yasg'
 ]
 
-CKEDITOR_UPLOAD_PATH = "ckeditor/images/"
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -93,13 +95,7 @@ DATABASES = {
     }
 }
 
-INTERNAL_IPS = [
-    "127.0.0.1",
-]
 
-MEDIA_ROOT = '%s/courses/static/' % BASE_DIR
-
-AUTH_USER_MODEL = 'courses.User'
 
 
 # Password validation
@@ -137,6 +133,15 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 STATIC_URL = 'static/'
+
+INTERNAL_IPS = [
+    "127.0.0.1",
+]
+
+MEDIA_ROOT = '%s/courses/static/' % BASE_DIR
+
+AUTH_USER_MODEL = 'courses.User'
+CKEDITOR_UPLOAD_PATH = "ckeditor/images/"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
