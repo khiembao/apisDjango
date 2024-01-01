@@ -2,10 +2,10 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from django.views import View
 from rest_framework.decorators import action
-from rest_framework import viewsets, generics, status
+from rest_framework import viewsets, generics, status, parsers
 from rest_framework.response import Response
 
-from .models import Course, Category, Lesson
+from .models import Course, Category, Lesson, User
 from courses import serializers, paginaters
 
 
@@ -40,8 +40,18 @@ class CourseViewSet(viewsets.ViewSet, generics.ListAPIView):
 
         return Response(serializers.LessonSerializer(lessons, many=True, context={'request': request}).data, status=status.HTTP_200_OK)
 
+class LessonViewSet(viewsets.ViewSet, generics.RetrieveAPIView):
+    queryset = Lesson.objects.filter(active=True).all()
+    serializer_class = serializers.LessonSerializer
 
-def index(request):
-    return render(request, template_name='index.html', context={
-        'name': 'Bao Khiem'
-    })
+class UserViewSet(viewsets.ViewSet, generics.CreateAPIView):
+    queryset = User.objects.filter(is_active=True).all()
+    serializer_class = serializers.UserSerializer
+    parser_classes = [parsers.MultiPartParser]
+
+
+
+# def index(request):
+#     return render(request, template_name='index.html', context={
+#         'name': 'Bao Khiem'
+#     })

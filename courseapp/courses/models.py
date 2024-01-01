@@ -1,11 +1,12 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from ckeditor.fields import RichTextField
+from cloudinary.models import CloudinaryField
 
 
 # Create your models here.
 class User(AbstractUser):
-    pass
+    avatar = CloudinaryField('avatar', null=True)
 
 class BaseModel(models.Model):
     created_date = models.DateField(auto_now_add=True, null=True)
