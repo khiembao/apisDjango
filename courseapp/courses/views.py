@@ -5,8 +5,9 @@ from rest_framework.decorators import action
 from rest_framework import viewsets, generics, status, parsers, permissions
 from rest_framework.response import Response
 
-from courses import serializers, paginaters
+from courses import serializers, paginaters, perms
 from .models import Course, Category, Lesson, User, Comment
+
 
 
 
@@ -73,7 +74,10 @@ class UserViewSet(viewsets.ViewSet, generics.CreateAPIView):
     def current_user(self, request):
         return Response(serializers.UserSerializer(request.user).data)
 
-
+class CommentViewSet(viewsets.ViewSet, generics.DestroyAPIView):
+    queryset = Comment.objects.all()
+    serializer_class = serializers.CommentSerializer
+    permission_classes = [perms.OwnerAuthenticated]
 
 # def index(request):
 #     return render(request, template_name='index.html', context={
