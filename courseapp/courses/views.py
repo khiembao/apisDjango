@@ -2,11 +2,12 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from django.views import View
 from rest_framework.decorators import action
-from rest_framework import viewsets, generics, status, parsers
+from rest_framework import viewsets, generics, status, parsers, permissions
 from rest_framework.response import Response
 
-from .models import Course, Category, Lesson, User
 from courses import serializers, paginaters
+from .models import Course, Category, Lesson, User, Comment
+
 
 
 
@@ -43,11 +44,34 @@ class CourseViewSet(viewsets.ViewSet, generics.ListAPIView):
 class LessonViewSet(viewsets.ViewSet, generics.RetrieveAPIView):
     queryset = Lesson.objects.filter(active=True).all()
     serializer_class = serializers.LessonSerializer
+    permission_classes = [permissions.AllowAny]
+
+    def get_permissions(self):
+        if self.action in ['add_comment']:
+            return [permissions.IsAuthenticated()]
+
+        return self.permission_classes
+
+    @action(methods=['post'], url_path='comments', detail=True)
+    def add_comment(self, request, pk):
+        c = Comment.objects.create(user=request.user, lesson=self.get_object(), content=request.data.get('content'))
+
+        return Response(serializers.CommentSerializer(c).data, status=status.HTTP_201_CREATED)
+
 
 class UserViewSet(viewsets.ViewSet, generics.CreateAPIView):
     queryset = User.objects.filter(is_active=True).all()
     serializer_class = serializers.UserSerializer
     parser_classes = [parsers.MultiPartParser]
+
+    def get_permissions(self):
+        if self.action.__eq__('current_user'):
+            return [permissions.IsAuthenticated()]
+
+        return [permissions.AllowAny()]
+    @action(methods=['get'], url_name='current-user', detail=False)
+    def current_user(self, request):
+        return Response(serializers.UserSerializer(request.user).data)
 
 
 
