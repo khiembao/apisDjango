@@ -5,8 +5,10 @@ from rest_framework.decorators import action
 from rest_framework import viewsets, generics, status, parsers, permissions
 from rest_framework.response import Response
 
-from courses import serializers, paginaters, perms
-from .models import Course, Category, Lesson, User, Comment, Like
+from courses import serializers, paginaters
+from .models import Course, Category, Lesson, User, Comment
+
+
 
 
 # Create your views here.
@@ -45,7 +47,7 @@ class LessonViewSet(viewsets.ViewSet, generics.RetrieveAPIView):
     permission_classes = [permissions.AllowAny]
 
     def get_permissions(self):
-        if self.action in ['add_comment', 'like']:
+        if self.action in ['add_comment']:
             return [permissions.IsAuthenticated()]
 
         return self.permission_classes
@@ -55,15 +57,6 @@ class LessonViewSet(viewsets.ViewSet, generics.RetrieveAPIView):
         c = Comment.objects.create(user=request.user, lesson=self.get_object(), content=request.data.get('content'))
 
         return Response(serializers.CommentSerializer(c).data, status=status.HTTP_201_CREATED)
-
-    @action(methods=['post'], url_path='like', detail=True)
-    def like(self, request, pk):
-        like, created = Like.objects.get_or_create(user=request.user, lesson=self.get_object())
-        if not created:
-            like.active = not like.active
-            like.save()
-
-        return Response(serializers.LessonDetailsSerializer(self.get_object(),context={'request': request}).data, status=status.HTTP_200_OK)
 
 
 class UserViewSet(viewsets.ViewSet, generics.CreateAPIView):
@@ -80,10 +73,7 @@ class UserViewSet(viewsets.ViewSet, generics.CreateAPIView):
     def current_user(self, request):
         return Response(serializers.UserSerializer(request.user).data)
 
-class CommentViewSet(viewsets.ViewSet, generics.DestroyAPIView, generics.UpdateAPIView):
-    queryset = Comment.objects.all()
-    serializer_class = serializers.CommentSerializer
-    permission_classes = [perms.OwnerAuthenticated]
+
 
 # def index(request):
 #     return render(request, template_name='index.html', context={
